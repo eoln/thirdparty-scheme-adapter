@@ -101,7 +101,7 @@ export interface ThirdpartyTransactionPartyLookupResponse {
 }
 
 export interface ThirdpartyTransactionInitiateRequest {
-  payee: fspiopAPI.Schemas.Party
+  payee: tpAPI.Schemas.Party
   payer: tpAPI.Schemas.PartyTPLink
   amountType: fspiopAPI.Schemas.AmountType
   amount: fspiopAPI.Schemas.Money
