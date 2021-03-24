@@ -86,11 +86,58 @@ export class PISPTransactionModel
         { name: 'requestPartyLookup', from: 'start', to: 'partyLookupSuccess' },
         { name: 'failPartyLookup', from: 'partyLookupSuccess', to: 'partyLookupFailure' },
 
+        // DRAFT of two step mitigation - It will be implemented after refactor to use deferredJob
         // Initiate Transaction Phase
-        { name: 'initiate', from: 'partyLookupSuccess', to: 'authorizationReceived' },
+        // POST /thirdpartyRequests/transactions
+        // setup two listeners on Incoming for:
+        // A: PUT /thirdpartyRequests/transactions/{id}
+        // B: POST /thridpartyRequests/authorizations (legacy POST /authorization)
+        {
+          name: 'initiate',
+          from: 'partyLookupSuccess',
+          to: 'authorizationReceived'
+          // to: 'pendingTransactionInitiation'
+        },
+
+        // // two step mitigation of hazard between potentially parallel incoming calls
+        // // A: PUT /thirdpartyRequests/transactions/{id} - transactionReceived
+        // // B: POST /thridpartyRequests/authorizations (legacy POST /authorization) - authorizationRequest
+
+        // // first case when: A:transactionReceived first then B:authorizationRequest
+        // // PUT (A) comes first, wait on POST(B)
+        // { // [A] -> B -> waitingOnApprove flow
+        //   name: 'transactionReceived',
+        //   from: 'pendingTransactionInitiation',
+        //   to: 'waitingOnAuthorizationRequest'
+        // },
+        // // POST (B) comes after PUT (A)
+        // { // A -> [B] -> waitingOnApprove flow
+        //   name: 'authorizationRequestReceivedAfterTransactionReceived',
+        //   from: 'waitingOnAuthorizationRequest',
+        //   to: 'waitingOnApprove'
+        // },
+
+        // // second case when: authorizationRequest first then transactionReceived
+        // // POST (B) comes first, wait on PUT(A)
+        // { // [B] -> A -> waitingOnApprove flow
+        //   name: 'authorizationRequestReceived',
+        //   from: 'pendingTransactionInitiation',
+        //   to: 'waitingOnTransactionReceived'
+        // },
+        // // PUT (A) comes after POST (B)
+        // { // B -> [A] -> waitingOnApprove flow
+        //   name: 'transactionReceivedAfterAuthorizationRequestReceived',
+        //   from: 'waitingOnTransa1ctionReceived',
+        //   to: 'waitingOnApprove'
+        // },
 
         // Approve Transaction Phase
-        { name: 'approve', from: 'authorizationReceived', to: 'transactionStatusReceived' }
+        {
+          name: 'approve',
+          // from: 'waitingOnApprove',
+          from: 'authorizationReceived',
+          to: 'transactionStatusReceived'
+        }
 
       ],
       methods: {
