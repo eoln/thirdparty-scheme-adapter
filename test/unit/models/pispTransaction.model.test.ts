@@ -189,7 +189,7 @@ describe('pipsTransactionModel', () => {
         checkPTMLayout(model, lookupData)
       })
 
-      it('should give response properly populated from backendRequests.requestPartiesInformation', async () => {
+      it('should give response properly populated from sdkOutgoingRequests.requestPartiesInformation', async () => {
         const model = await create(lookupData, modelConfig)
         mocked(modelConfig.sdkOutgoingRequests.requestPartiesInformation).mockImplementationOnce(() => Promise.resolve({
           party,
@@ -295,8 +295,6 @@ describe('pipsTransactionModel', () => {
             currentState: RequestPartiesInformationState.COMPLETED
           },
           initiateRequest: {
-            sourceAccountId: 'source-account-id',
-            consentId: 'consent-id',
             payee: party,
             payer: {
               partyIdInfo: {
@@ -432,8 +430,6 @@ describe('pipsTransactionModel', () => {
             currentState: RequestPartiesInformationState.COMPLETED
           },
           initiateRequest: {
-            sourceAccountId: 'source-account-id',
-            consentId: 'consent-id',
             payee: party,
             payer: {
               partyIdInfo: {
